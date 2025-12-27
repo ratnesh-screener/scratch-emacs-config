@@ -18,15 +18,28 @@
 (doom-modeline-mode 1)
 (global-display-line-numbers-mode 1)
 
-(set-face-attribute 'default nil :height 160)
 
+(use-package format-all
+  :ensure t
+  :hook (prog-mode-hook . format-all-mode))
 
-(add-hook 'python-mode-hook #'tree-sitter-hl-mode)
+(use-package exec-path-from-shell
+  :config
+  (exec-path-from-shell-initialize))
+
 
 (use-package vertico
+  :custom
+  (vertico-count 20)
   :init
   (vertico-mode))
 
+(use-package which-key
+  :ensure t
+  :config
+  (which-key-mode +1))
+
+;; This is for diplaying results in a new frame instead of the minibuffer
 (use-package vertico-posframe
   :ensure t
   :init
@@ -34,7 +47,8 @@
   :custom
   (vertico-posframe-parameters
    '((left-fringe . 8)
-     (right-fringe . 8))))
+     (right-fringe . 8)
+     (height . 20))))
 
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
@@ -72,16 +86,19 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(doom-challenger-deep))
+ '(custom-enabled-themes '(misterioso))
  '(custom-safe-themes
    '("13096a9a6e75c7330c1bc500f30a8f4407bd618431c94aeab55c9855731a95e1"
      default))
  '(highlight-indent-guides-method 'character)
+ '(lsp-ui-doc-position 'at-point)
  '(package-selected-packages
-   '(all-the-icons company consult doom-modeline doom-themes golden-ratio
+   '(all-the-icons company consult doom-modeline doom-themes
+                   exec-path-from-shell format-all golden-ratio
                    highlight-indent-guides json-mode lsp-ui orderless
                    page-break-lines popup projectile tree-sitter
-                   tree-sitter-langs vertico-posframe)))
+                   tree-sitter-langs vertico-posframe))
+ '(vertico-posframe-height 20))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

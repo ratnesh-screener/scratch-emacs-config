@@ -1,3 +1,4 @@
+
 (require 'use-package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (package-initialize)
@@ -12,12 +13,70 @@
 (tool-bar-mode 0)
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
-(column-number-mode 1)
 (show-paren-mode 1)
 (desktop-save-mode 1)
-(doom-modeline-mode 1)
 (global-display-line-numbers-mode 1)
+(highlight-indent-guides-mode 1)
+(electric-pair-mode 1)
 
+(set-face-attribute 'default nil :height 150)
+
+; Hooks
+
+(add-hook 'python-mode-hook #'tree-sitter-hl-mode)
+(add-hook 'js-mode-hook #'tree-sitter-hl-mode)
+(add-hook 'after-init-hook 'global-company-mode)
+(defun my/python-mode-hook ()
+  (add-to-list 'company-backends 'company-jedi))
+
+(add-hook 'python-mode-hook 'my/python-mode-hook)
+(add-hook 'python-mode-hook #'lsp-deferred)
+
+; This configures auto-saves to go into the backups directory
+(defvar my-auto-save-dir (concat user-emacs-directory "backups/"))
+(setf kill-buffer-delete-auto-save-files t)
+
+(setq auto-save-file-name-transforms
+      `((".*" ,my-auto-save-dir t)))
+
+; Packages
+
+(use-package lsp-mode
+  :ensure t)
+
+(use-package projectile
+  :ensure t)
+
+(use-package web-mode
+  :ensure t
+  :mode
+  (("\\.phtml\\'" . web-mode)
+   ("\\.php\\'" . web-mode)
+   ("\\.tpl\\'" . web-mode)
+   ("\\.[agj]sp\\'" . web-mode)
+   ("\\.as[cp]x\\'" . web-mode)
+   ("\\.erb\\'" . web-mode)
+   ("\\.mustache\\'" . web-mode)
+   ("\\.djhtml\\'" . web-mode)
+   ("\\.html?\\'" . web-mode)))
+
+
+(defun cesco/django ()
+    (if (projectile-project-p)
+        (if (file-exists-p (concat (projectile-project-root) "manage.py"))
+            (web-mode-set-engine "django"))))
+(add-hook 'web-mode-hook 'cesco/django)
+
+
+(use-package doom-modeline
+  :ensure t
+  :init
+  (doom-modeline-mode))
+
+(use-package hl-todo
+  :ensure t
+  :init
+  (global-hl-todo-mode))
 
 (use-package format-all
   :ensure t
@@ -27,8 +86,13 @@
   :config
   (exec-path-from-shell-initialize))
 
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode))
 
 (use-package vertico
+  :ensure t
   :custom
   (vertico-count 20)
   :init
@@ -86,19 +150,29 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(misterioso))
+ '(custom-enabled-themes '(doom-one))
  '(custom-safe-themes
-   '("13096a9a6e75c7330c1bc500f30a8f4407bd618431c94aeab55c9855731a95e1"
+   '("19d62171e83f2d4d6f7c31fc0a6f437e8cec4543234f0548bad5d49be8e344cd"
+     "b5fd9c7429d52190235f2383e47d340d7ff769f141cd8f9e7a4629a81abc6b19"
+     "0325a6b5eea7e5febae709dab35ec8648908af12cf2d2b569bedc8da0a3a81c1"
+     "13096a9a6e75c7330c1bc500f30a8f4407bd618431c94aeab55c9855731a95e1"
      default))
  '(highlight-indent-guides-method 'character)
+ '(lsp-headerline-breadcrumb-enable nil)
  '(lsp-ui-doc-position 'at-point)
+ '(lsp-ui-doc-show-with-cursor t)
  '(package-selected-packages
-   '(all-the-icons company consult doom-modeline doom-themes
+   '(all-the-icons company company-jedi consult doom-modeline doom-themes
                    exec-path-from-shell format-all golden-ratio
-                   highlight-indent-guides json-mode lsp-ui orderless
-                   page-break-lines popup projectile tree-sitter
-                   tree-sitter-langs vertico-posframe))
- '(vertico-posframe-height 20))
+                   highlight-indent-guides hl-todo json-mode lsp-ui
+                   marginalia orderless page-break-lines popup
+                   projectile tree-sitter tree-sitter-langs
+                   vertico-posframe web-mode))
+ '(safe-local-variable-values '((web-mode-engine . django)))
+ '(scroll-conservatively 100)
+ '(scroll-margin 3)
+ '(vertico-posframe-height 20)
+ '(web-mode-engines-alist nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

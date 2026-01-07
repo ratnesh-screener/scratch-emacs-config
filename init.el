@@ -1,4 +1,3 @@
-
 (require 'use-package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (package-initialize)
@@ -19,6 +18,15 @@
 (highlight-indent-guides-mode 1)
 (electric-pair-mode 1)
 
+(global-set-key (kbd "C-x g") 'magit-status)
+
+(setq python-indent-offset 4)
+
+(defun my/insert-ipdb-trace ()
+  "Insert 'import ipdb; ipdb.set_trace()' for debugging."
+  (interactive)
+  (insert "import ipdb\nipdb.set_trace()"))
+
 (set-face-attribute 'default nil :height 150)
 
 ; Hooks
@@ -31,6 +39,8 @@
 
 (add-hook 'python-mode-hook 'my/python-mode-hook)
 (add-hook 'python-mode-hook #'lsp-deferred)
+(add-hook 'web-mode-hook (lambda () (electric-pair-mode -1)))
+
 
 ; This configures auto-saves to go into the backups directory
 (defvar my-auto-save-dir (concat user-emacs-directory "backups/"))
@@ -39,16 +49,32 @@
 (setq auto-save-file-name-transforms
       `((".*" ,my-auto-save-dir t)))
 
+(defun cesco/django ()
+    (if (projectile-project-p)
+        (if (file-exists-p (concat (projectile-project-root) "manage.py"))
+            (web-mode-set-engine "django"))))
+(add-hook 'web-mode-hook 'cesco/django)
+
+
 ; Packages
 
 (use-package lsp-mode
-  :ensure t)
+  :hook (python-mode . lsp-deferred)
+  :config
+  ;; Enable rope autoimport completions and code actions
+  (setq lsp-pylsp-plugins-rope-autoimport-enabled t)
+  (setq lsp-pylsp-plugins-rope-autoimport-completions-enabled t)
+  (setq lsp-pylsp-plugins-rope-autoimport-code-actions-enabled t))
 
 (use-package projectile
   :ensure t)
 
 (use-package web-mode
   :ensure t
+  :custom
+  (web-mode-markup-indent-offset 2) 
+  (web-mode-css-indent-offset 2)    
+  (web-mode-code-indent-offset 2)   
   :mode
   (("\\.phtml\\'" . web-mode)
    ("\\.php\\'" . web-mode)
@@ -59,13 +85,6 @@
    ("\\.mustache\\'" . web-mode)
    ("\\.djhtml\\'" . web-mode)
    ("\\.html?\\'" . web-mode)))
-
-
-(defun cesco/django ()
-    (if (projectile-project-p)
-        (if (file-exists-p (concat (projectile-project-root) "manage.py"))
-            (web-mode-set-engine "django"))))
-(add-hook 'web-mode-hook 'cesco/django)
 
 
 (use-package doom-modeline
@@ -161,11 +180,12 @@
  '(lsp-headerline-breadcrumb-enable nil)
  '(lsp-ui-doc-position 'at-point)
  '(lsp-ui-doc-show-with-cursor t)
+ '(org-agenda-files '("~/screener_dev/notes/cams.org"))
  '(package-selected-packages
    '(all-the-icons company company-jedi consult doom-modeline doom-themes
-                   exec-path-from-shell format-all golden-ratio
+                   esup exec-path-from-shell format-all golden-ratio
                    highlight-indent-guides hl-todo json-mode lsp-ui
-                   marginalia orderless page-break-lines popup
+                   magit marginalia orderless page-break-lines popup
                    projectile tree-sitter tree-sitter-langs
                    vertico-posframe web-mode))
  '(safe-local-variable-values '((web-mode-engine . django)))
@@ -179,3 +199,4 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+

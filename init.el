@@ -1,6 +1,5 @@
 (require 'use-package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(package-initialize)
 
 (setq-default inhibit-splash-screen t
               make-backup-files nil
@@ -15,10 +14,11 @@
 (show-paren-mode 1)
 (desktop-save-mode 1)
 (global-display-line-numbers-mode 1)
-(highlight-indent-guides-mode 1)
 (electric-pair-mode 1)
 
 (global-set-key (kbd "C-x g") 'magit-status)
+
+(setq desktop-restore-eager 5)
 
 (setq python-indent-offset 4)
 
@@ -29,18 +29,19 @@
 
 (set-face-attribute 'default nil :height 150)
 
+(setq major-mode-remap-alist
+      '((python-mode . python-ts-mode)
+        (js-mode . js-ts-mode)))
+(setq python-indent-guess-indent-offset nil)
+
+(setq lock-file-name-transforms '((".*" "~/.emacs.d/tmp/locks/" t)))
+
 ; Hooks
 
-(add-hook 'python-mode-hook #'tree-sitter-hl-mode)
-(add-hook 'js-mode-hook #'tree-sitter-hl-mode)
 (add-hook 'after-init-hook 'global-company-mode)
-(defun my/python-mode-hook ()
-  (add-to-list 'company-backends 'company-jedi))
+(setq lsp-completion-provider :capf)
 
-(add-hook 'python-mode-hook 'my/python-mode-hook)
-(add-hook 'python-mode-hook #'lsp-deferred)
 (add-hook 'web-mode-hook (lambda () (electric-pair-mode -1)))
-
 
 ; This configures auto-saves to go into the backups directory
 (defvar my-auto-save-dir (concat user-emacs-directory "backups/"))
@@ -55,19 +56,20 @@
             (web-mode-set-engine "django"))))
 (add-hook 'web-mode-hook 'cesco/django)
 
+(add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
 
 ; Packages
 
 (use-package lsp-mode
-  :hook (python-mode . lsp-deferred)
-  :config
-  ;; Enable rope autoimport completions and code actions
-  (setq lsp-pylsp-plugins-rope-autoimport-enabled t)
-  (setq lsp-pylsp-plugins-rope-autoimport-completions-enabled t)
-  (setq lsp-pylsp-plugins-rope-autoimport-code-actions-enabled t))
+  :hook (python-mode . lsp-deferred))
 
 (use-package projectile
   :ensure t)
+
+(use-package yasnippet
+  :ensure t
+  :init
+  (yas-global-mode 1))
 
 (use-package web-mode
   :ensure t
@@ -96,10 +98,6 @@
   :ensure t
   :init
   (global-hl-todo-mode))
-
-(use-package format-all
-  :ensure t
-  :hook (prog-mode-hook . format-all-mode))
 
 (use-package exec-path-from-shell
   :config
@@ -176,18 +174,14 @@
      "0325a6b5eea7e5febae709dab35ec8648908af12cf2d2b569bedc8da0a3a81c1"
      "13096a9a6e75c7330c1bc500f30a8f4407bd618431c94aeab55c9855731a95e1"
      default))
+ '(doom-modeline-buffer-encoding 'nondefault)
  '(highlight-indent-guides-method 'character)
  '(lsp-headerline-breadcrumb-enable nil)
+ '(lsp-modeline-code-actions-enable nil)
  '(lsp-ui-doc-position 'at-point)
  '(lsp-ui-doc-show-with-cursor t)
  '(org-agenda-files '("~/screener_dev/notes/cams.org"))
- '(package-selected-packages
-   '(all-the-icons company company-jedi consult doom-modeline doom-themes
-                   esup exec-path-from-shell format-all golden-ratio
-                   highlight-indent-guides hl-todo json-mode lsp-ui
-                   magit marginalia orderless page-break-lines popup
-                   projectile tree-sitter tree-sitter-langs
-                   vertico-posframe web-mode))
+ '(package-selected-packages nil)
  '(safe-local-variable-values '((web-mode-engine . django)))
  '(scroll-conservatively 100)
  '(scroll-margin 3)

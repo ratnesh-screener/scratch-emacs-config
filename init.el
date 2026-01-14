@@ -15,8 +15,11 @@
 (desktop-save-mode 1)
 (global-display-line-numbers-mode 1)
 (electric-pair-mode 1)
+(global-font-lock-mode t)
 
 (global-set-key (kbd "C-x g") 'magit-status)
+
+(setq font-lock-maximum-decoration t) 
 
 (setq desktop-restore-eager 5)
 
@@ -25,9 +28,14 @@
 (defun my/insert-ipdb-trace ()
   "Insert 'import ipdb; ipdb.set_trace()' for debugging."
   (interactive)
-  (insert "import ipdb\nipdb.set_trace()"))
+  (insert "__import__(\"ipdb\").set_trace()"))
 
-(set-face-attribute 'default nil :height 150)
+(add-hook 'python-ts-mode-hook
+          (lambda ()
+            (local-set-key (kbd "C-c d")
+                           #'my/insert-ipdb-trace)))
+
+(set-face-attribute 'default nil :font "Iosevka" :height 160)
 
 (setq major-mode-remap-alist
       '((python-mode . python-ts-mode)
@@ -41,9 +49,7 @@
 (add-hook 'after-init-hook 'global-company-mode)
 (setq lsp-completion-provider :capf)
 
-(add-hook 'web-mode-hook (lambda () (electric-pair-mode -1)))
-
-; This configures auto-saves to go into the backups directory
+;; This configures auto-saves to go into the backups directory
 (defvar my-auto-save-dir (concat user-emacs-directory "backups/"))
 (setf kill-buffer-delete-auto-save-files t)
 
@@ -53,15 +59,48 @@
 (defun cesco/django ()
     (if (projectile-project-p)
         (if (file-exists-p (concat (projectile-project-root) "manage.py"))
-            (web-mode-set-engine "django"))))
+            (web-mode-set-engine "django")))
+    (electric-pair-mode -1))
 (add-hook 'web-mode-hook 'cesco/django)
 
-(add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
+
+;; Org Mode Plantuml Integration
+
+(setq org-startup-with-inline-images t)
+(setq org-plantuml-exec-mode 'plantuml)
+(setq org-plantuml-executable-path (executable-find "plantuml"))
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((plantuml . t)))
+(add-hook 'org-babel-after-execute-hook #'org-display-inline-images)
+
+(add-hook 'org-mode-hook #'org-modern-mode)
+(add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+
+;; Modern org mod customizations
+
+
+(setq
+ ;; Edit settings
+ org-auto-align-tags nil
+ org-tags-column 0
+ org-catch-invisible-edits 'show-and-error
+ org-special-ctrl-a/e t
+ org-insert-heading-respect-content t
+
+ ;; Org styling, hide markup etc.
+ org-hide-emphasis-markers t
+ org-pretty-entities t
+ org-agenda-tags-column 0
+ org-ellipsis "…")
 
 ; Packages
 
+(use-package org-modern
+  :ensure t)
+
 (use-package lsp-mode
-  :hook (python-mode . lsp-deferred))
+  :hook ((python-mode python-ts-mode) . lsp-deferred))
 
 (use-package projectile
   :ensure t)
@@ -167,9 +206,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(doom-one))
+ '(custom-enabled-themes '(doom-tomorrow-night))
  '(custom-safe-themes
-   '("19d62171e83f2d4d6f7c31fc0a6f437e8cec4543234f0548bad5d49be8e344cd"
+   '("7771c8496c10162220af0ca7b7e61459cb42d18c35ce272a63461c0fc1336015"
+     "19d62171e83f2d4d6f7c31fc0a6f437e8cec4543234f0548bad5d49be8e344cd"
      "b5fd9c7429d52190235f2383e47d340d7ff769f141cd8f9e7a4629a81abc6b19"
      "0325a6b5eea7e5febae709dab35ec8648908af12cf2d2b569bedc8da0a3a81c1"
      "13096a9a6e75c7330c1bc500f30a8f4407bd618431c94aeab55c9855731a95e1"
@@ -181,10 +221,18 @@
  '(lsp-ui-doc-position 'at-point)
  '(lsp-ui-doc-show-with-cursor t)
  '(org-agenda-files '("~/screener_dev/notes/cams.org"))
- '(package-selected-packages nil)
+ '(package-selected-packages
+   '(all-the-icons async company-jedi consult doom-modeline doom-themes
+                   esup exec-path-from-shell expand-region format-all
+                   golden-ratio gruber-darker-theme
+                   highlight-indent-guides hl-todo json-mode lsp-ui
+                   magit marginalia orderless org-modern
+                   page-break-lines plantuml-mode popup projectile tsc
+                   vertico-posframe web-mode yasnippet))
  '(safe-local-variable-values '((web-mode-engine . django)))
  '(scroll-conservatively 100)
  '(scroll-margin 3)
+ '(treesit-font-lock-level 4)
  '(vertico-posframe-height 20)
  '(web-mode-engines-alist nil))
 (custom-set-faces

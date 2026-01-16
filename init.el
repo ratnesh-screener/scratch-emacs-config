@@ -44,7 +44,7 @@
 
 (setq lock-file-name-transforms '((".*" "~/.emacs.d/tmp/locks/" t)))
 
-; Hooks
+;; Hooks
 
 (add-hook 'after-init-hook 'global-company-mode)
 (setq lsp-completion-provider :capf)
@@ -57,15 +57,17 @@
       `((".*" ,my-auto-save-dir t)))
 
 (defun cesco/django ()
-    (if (projectile-project-p)
-        (if (file-exists-p (concat (projectile-project-root) "manage.py"))
-            (web-mode-set-engine "django")))
-    (electric-pair-mode -1))
+  (if (projectile-project-p)
+      (if (file-exists-p (concat (projectile-project-root) "manage.py"))
+          (web-mode-set-engine "django")))
+  (electric-pair-mode -1))
 (add-hook 'web-mode-hook 'cesco/django)
 
 
 ;; Org Mode Plantuml Integration
 
+(setq org-adapt-indentation t)
+(setq org-src-preserve-indentation t)
 (setq org-startup-with-inline-images t)
 (setq org-plantuml-exec-mode 'plantuml)
 (setq org-plantuml-executable-path (executable-find "plantuml"))
@@ -75,6 +77,7 @@
 (add-hook 'org-babel-after-execute-hook #'org-display-inline-images)
 
 (add-hook 'org-mode-hook #'org-modern-mode)
+(add-hook 'org-mode-hook #'org-indent-mode)
 (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
 
 ;; Modern org mod customizations
@@ -94,7 +97,12 @@
  org-agenda-tags-column 0
  org-ellipsis "…")
 
-; Packages
+;; Packages
+
+(use-package expand-region
+  :ensure t
+  :bind (("C-=" . er/expand-region)
+         ("C--" . er/contract-region)))
 
 (use-package org-modern
   :ensure t)
@@ -221,6 +229,7 @@
  '(lsp-ui-doc-position 'at-point)
  '(lsp-ui-doc-show-with-cursor t)
  '(org-agenda-files '("~/screener_dev/notes/cams.org"))
+ '(org-src-preserve-indentation t)
  '(package-selected-packages
    '(all-the-icons async company-jedi consult doom-modeline doom-themes
                    esup exec-path-from-shell expand-region format-all
@@ -234,7 +243,8 @@
  '(scroll-margin 3)
  '(treesit-font-lock-level 4)
  '(vertico-posframe-height 20)
- '(web-mode-engines-alist nil))
+ '(web-mode-engines-alist nil)
+ '(window-divider-default-right-width 1))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

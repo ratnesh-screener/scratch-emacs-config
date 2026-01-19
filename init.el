@@ -16,6 +16,7 @@
 (global-display-line-numbers-mode 1)
 (electric-pair-mode 1)
 (global-font-lock-mode t)
+(highlight-indent-guides-mode t)
 
 (global-set-key (kbd "C-x g") 'magit-status)
 
@@ -97,7 +98,32 @@
  org-agenda-tags-column 0
  org-ellipsis "…")
 
+
+;; lsp setup
+;; Pyright / LSP auto-import support
+(setq lsp-completion-enable-additional-text-edit t)
+
+(with-eval-after-load 'company
+  (setq company-backends '(company-capf)))
+
+(setq projectile-project-root-files
+      '("pyproject.toml" "setup.py" "manage.py" ".git"))
+
+
 ;; Packages
+
+(use-package format-all
+  :ensure t
+  :hook (python-ts-mode . format-all-mode))
+
+(use-package lsp-pyright
+  :ensure t
+  :after lsp-mode
+  :custom
+  (lsp-pyright-typechecking-mode "basic")
+  (lsp-pyright-auto-import-completions t)
+  (lsp-pyright-use-library-code-for-types t))
+
 
 (use-package expand-region
   :ensure t
@@ -234,10 +260,10 @@
    '(all-the-icons async company-jedi consult doom-modeline doom-themes
                    esup exec-path-from-shell expand-region format-all
                    golden-ratio gruber-darker-theme
-                   highlight-indent-guides hl-todo json-mode lsp-ui
-                   magit marginalia orderless org-modern
-                   page-break-lines plantuml-mode popup projectile tsc
-                   vertico-posframe web-mode yasnippet))
+                   highlight-indent-guides hl-todo json-mode
+                   lsp-pyright lsp-ui magit marginalia orderless
+                   org-modern page-break-lines plantuml-mode popup
+                   projectile tsc vertico-posframe web-mode yasnippet))
  '(safe-local-variable-values '((web-mode-engine . django)))
  '(scroll-conservatively 100)
  '(scroll-margin 3)

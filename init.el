@@ -1,4 +1,5 @@
 (require 'use-package)
+(require 'cl-lib)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 
 (setq-default inhibit-splash-screen t
@@ -26,6 +27,19 @@
 
 (setq python-indent-offset 4)
 
+(defun my/set-lsp-python-executable ()
+  "Try to find and set python executable for LSP."
+  (when-let ((project-root (ignore-errors (projectile-project-root))))
+    (let* ((venv-paths (list (expand-file-name ".venv" project-root)
+                             (expand-file-name "venv" project-root)))
+           (venv-path (cl-find-if #'file-directory-p venv-paths)))
+      (when venv-path
+        (let ((python-executable (expand-file-name "bin/python" venv-path)))
+          (when (file-exists-p python-executable)
+            (setq-local lsp-python-executable python-executable)))))))
+
+(add-hook 'python-ts-mode-hook #'my/set-lsp-python-executable)
+
 (defun my/insert-ipdb-trace ()
   "Insert 'import ipdb; ipdb.set_trace()' for debugging."
   (interactive)
@@ -45,6 +59,9 @@
 
 (setq lock-file-name-transforms '((".*" "~/.emacs.d/tmp/locks/" t)))
 
+(setq lsp-modeline-code-actions-enable nil)
+
+
 ;; Hooks
 
 (add-hook 'after-init-hook 'global-company-mode)
@@ -60,9 +77,10 @@
 (defun cesco/django ()
   (if (projectile-project-p)
       (if (file-exists-p (concat (projectile-project-root) "manage.py"))
-          (web-mode-set-engine "django")))
-  (electric-pair-mode -1))
+          (web-mode-set-engine "django"))))
 (add-hook 'web-mode-hook 'cesco/django)
+(add-hook 'web-mode-hook (lambda ()
+                           (electric-pair-local-mode -1)))
 
 
 ;; Org Mode Plantuml Integration
@@ -135,6 +153,12 @@
 
 (use-package lsp-mode
   :hook ((python-mode python-ts-mode) . lsp-deferred))
+
+(use-package lsp-ui
+  :ensure t
+  :after lsp-mode
+  :commands lsp-ui-mode
+  :hook (lsp-mode . lsp-ui-mode))
 
 (use-package projectile
   :ensure t)
@@ -257,13 +281,14 @@
  '(org-agenda-files '("~/screener_dev/notes/cams.org"))
  '(org-src-preserve-indentation t)
  '(package-selected-packages
-   '(all-the-icons async company-jedi consult doom-modeline doom-themes
-                   esup exec-path-from-shell expand-region format-all
-                   golden-ratio gruber-darker-theme
+   '(all-the-icons async company-jedi consult crontab-mode doom-modeline
+                   doom-themes esup exec-path-from-shell expand-region
+                   format-all golden-ratio gruber-darker-theme
                    highlight-indent-guides hl-todo json-mode
                    lsp-pyright lsp-ui magit marginalia orderless
-                   org-modern page-break-lines plantuml-mode popup
-                   projectile tsc vertico-posframe web-mode yasnippet))
+                   org-modern page-break-lines pdf-tools plantuml-mode
+                   popup projectile tsc vertico vertico-posframe
+                   web-mode yasnippet))
  '(safe-local-variable-values '((web-mode-engine . django)))
  '(scroll-conservatively 100)
  '(scroll-margin 3)

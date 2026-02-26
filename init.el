@@ -13,7 +13,6 @@
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
 (show-paren-mode 1)
-(desktop-save-mode 1)
 (global-display-line-numbers-mode 1)
 (electric-pair-mode 1)
 (global-font-lock-mode t)
@@ -281,14 +280,14 @@
  '(org-agenda-files '("~/screener_dev/notes/cams.org"))
  '(org-src-preserve-indentation t)
  '(package-selected-packages
-   '(all-the-icons async company-jedi consult crontab-mode doom-modeline
-                   doom-themes esup exec-path-from-shell expand-region
-                   format-all golden-ratio gruber-darker-theme
-                   highlight-indent-guides hl-todo json-mode
-                   lsp-pyright lsp-ui magit marginalia orderless
-                   org-modern page-break-lines pdf-tools plantuml-mode
-                   popup projectile tsc vertico vertico-posframe
-                   web-mode yasnippet))
+   '(agent-shell all-the-icons async company-jedi consult crontab-mode
+                 doom-modeline doom-themes esup exec-path-from-shell
+                 expand-region format-all golden-ratio
+                 gruber-darker-theme highlight-indent-guides hl-todo
+                 json-mode lsp-pyright lsp-ui magit marginalia
+                 orderless org-modern page-break-lines pdf-tools
+                 plantuml-mode popup projectile tsc vertico
+                 vertico-posframe web-mode yasnippet))
  '(safe-local-variable-values '((web-mode-engine . django)))
  '(scroll-conservatively 100)
  '(scroll-margin 3)

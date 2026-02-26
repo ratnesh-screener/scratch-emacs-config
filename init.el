@@ -20,6 +20,8 @@
 
 (global-set-key (kbd "C-x g") 'magit-status)
 
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
 (setq font-lock-maximum-decoration t) 
 
 (setq desktop-restore-eager 5)
